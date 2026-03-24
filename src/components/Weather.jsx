@@ -87,35 +87,32 @@ function Weather() {
 
   setLoading(true);
 
-  navigator.geolocation.getCurrentPosition(
-    async (position) => {
-      const { latitude, longitude } = position.coords;
+ navigator.geolocation.getCurrentPosition(
+  async (position) => {
+    const { latitude, longitude } = position.coords;
 
-      try {
-        const res = await axios.get(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`
-        );
+    try {
+      const res = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`
+      );
 
-        setData(res.data);
-        setError("");
-      } catch (err) {
-        setError("Failed to fetch location weather");
-      } finally {
-        setLoading(false);
-      }
-    },
-    (err) => {
+      setData(res.data);
+      setError("");
+    } catch {
+      setError("Failed to fetch location weather");
+    } finally {
       setLoading(false);
-
-      if (err.code === 1) {
-        setError("Permission denied. Allow location access.");
-      } else if (err.code === 2) {
-        setError("Location unavailable");
-      } else {
-        setError("Something went wrong");
-      }
     }
-  );
+  },
+  (err) => {
+    setLoading(false);
+    setError("Please enable location and allow permission");
+  },
+  {
+    enableHighAccuracy: true,
+    timeout: 10000,
+  }
+);
 };
   // Dynamic background
   const getBackground = () => {
