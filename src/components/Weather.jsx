@@ -13,7 +13,7 @@ function Weather() {
   useEffect(() => {
   const saved = JSON.parse(localStorage.getItem("history"));
   if (saved) setHistory(saved);
-  setCity("Bengaluru");
+  setCity();
   fetchDefaultWeather("Bengaluru");
 }, []);
   const API_KEY = import.meta.env.VITE_API_KEY;
