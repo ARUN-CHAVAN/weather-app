@@ -11,12 +11,38 @@ function Weather() {
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("history"));
-    if (saved) setHistory(saved);
-  }, []);
-
+  const saved = JSON.parse(localStorage.getItem("history"));
+  if (saved) setHistory(saved);
+  setCity("Bengaluru");
+  fetchDefaultWeather("Bengaluru");
+}, []);
   const API_KEY = import.meta.env.VITE_API_KEY;
 
+  const fetchDefaultWeather = async (defaultCity) => {
+  try {
+    setLoading(true);
+
+    const res = await axios.get(
+      `https://api.openweathermap.org/data/2.5/weather?q=${defaultCity}&appid=${API_KEY}&units=metric`
+    );
+
+    const forecastRes = await axios.get(
+      `https://api.openweathermap.org/data/2.5/forecast?q=${defaultCity}&appid=${API_KEY}&units=metric`
+    );
+
+    const dailyData = forecastRes.data.list.filter(
+      (item, index) => index % 8 === 0
+    );
+
+    setData(res.data);
+    setForecast(dailyData);
+    setError("");
+  } catch {
+    setError("Default city not loaded");
+  } finally {
+    setLoading(false);
+  }
+};
   const getWeather = async () => {
     if (!city) {
       setError("Please enter a city");
@@ -94,9 +120,9 @@ function Weather() {
 
   return (
     <div
-      className={`container-fluid d-flex justify-content-center  align-items-center vh-100 ${getBackground()}`}
+      className={`container-fluid d-flex justify-content-center  align-items-start min-vh-100 ${getBackground()}`}
     >
-      <div className="card shadow h-100 p-4 w-100" style={{ maxWidth: "900px" }}>
+      <div className="card shadow p-4 w-100" style={{ maxWidth: "900px",width:"100%" }}>
         <h3 className="text-center mb-3">Weather App</h3>
 
         {/* Input */}
@@ -111,7 +137,7 @@ function Weather() {
     onKeyDown={(e) => e.key === "Enter" && getWeather()}
   />
 
-  <div className="d-flex gap-2">
+  <div className="d-flex gap-2 flex-wrap">
     <button className="btn btn-primary w-50" onClick={getWeather}>
       Search
     </button>
@@ -175,12 +201,12 @@ function Weather() {
   <div className="mt-4">
     <h5 className="text-center">5-Day Forecast</h5>
 
-    <div className="d-flex justify-content-between flex-wrap">
+    <div className="d-flex justify-content-center flex-wrap">
       {forecast.map((item, index) => (
         <div
           key={index}
-          className="card p-2 m-1 text-center"
-          style={{ width: "70px" }}
+          className="card p-2 m-1 text-center flex-fill"
+          style={{ width: "120px" }}
         >
           <small>
             {new Date(item.dt_txt).toLocaleDateString("en-US", {
