@@ -80,26 +80,43 @@ function Weather() {
     }
   };
   const getLocationWeather = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async (position) => {
-        const { latitude, longitude } = position.coords;
+  if (!navigator.geolocation) {
+    setError("Geolocation not supported");
+    return;
+  }
 
-        try {
-          setLoading(true);
+  setLoading(true);
 
-          const res = await axios.get(
-            `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`,
-          );
-          setData(res.data);
-          setError("");
-        } catch {
-          setError("Location not found");
-        } finally {
-          setLoading(false);
-        }
-      });
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const { latitude, longitude } = position.coords;
+
+      try {
+        const res = await axios.get(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`
+        );
+
+        setData(res.data);
+        setError("");
+      } catch (err) {
+        setError("Failed to fetch location weather");
+      } finally {
+        setLoading(false);
+      }
+    },
+    (err) => {
+      setLoading(false);
+
+      if (err.code === 1) {
+        setError("Permission denied. Allow location access.");
+      } else if (err.code === 2) {
+        setError("Location unavailable");
+      } else {
+        setError("Something went wrong");
+      }
     }
-  };
+  );
+};
   // Dynamic background
   const getBackground = () => {
     if (!data) return "bg-light";
