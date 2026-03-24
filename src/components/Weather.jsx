@@ -15,7 +15,7 @@ function Weather() {
     if (saved) setHistory(saved);
   }, []);
 
-  const API_KEY = "f6c77f01a9011d4425f11b53e370529f";
+  const API_KEY = import.meta.env.VITE_API_KEY;
 
   const getWeather = async () => {
     if (!city) {
